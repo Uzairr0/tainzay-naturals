@@ -22,8 +22,8 @@ If Vercel Root Directory is left blank, it deploys the root folder (which has no
 
    | Name | Value | Example |
    |------|--------|---------|
-   | `NEXT_PUBLIC_API_URL` | Your Render backend API URL | `https://your-app.onrender.com/api` |
-   | `NEXT_PUBLIC_SITE_URL` | Your Vercel site URL | `https://tainzay-naturals.vercel.app` |
+   | `NEXT_PUBLIC_API_URL` | Your Render backend API URL | `https://tainzay-naturals.onrender.com/api` |
+   | `NEXT_PUBLIC_SITE_URL` | Your **production** Vercel URL (not the long preview URL) | `https://tainzay-naturals.vercel.app` |
    | `ADMIN_PASSWORD` | Admin login password | (your choice) |
    | `ADMIN_SESSION_SECRET` | Long random string | (your choice) |
 
@@ -32,6 +32,25 @@ If Vercel Root Directory is left blank, it deploys the root folder (which has no
 5. **Deployments** → open latest deployment → **Redeploy** (use “Redeploy with existing Build Cache” or full redeploy)
 
 6. After build finishes, open the **Visit** link — you should see the homepage, not 404.
+
+### Use the correct URL (very common mistake)
+
+| URL type | Example | What you see |
+|----------|---------|--------------|
+| **Production** (share this) | `https://tainzay-naturals.vercel.app` | Your store |
+| **Preview / deployment** | `https://tainzay-naturals-n9bo346hw-uzairr0s-projects.vercel.app` | Often **Vercel Login** or 404 |
+
+Open **Vercel → Project → Domains**. Use the short `*.vercel.app` production domain, **not** the long `*-projects.vercel.app` link from a single deployment.
+
+### If you see “Log in to Vercel” instead of your site
+
+**Deployment Protection** is blocking public access to that URL.
+
+1. **Settings** → **Deployment Protection**
+2. For a public store: disable protection on **Production**, or only protect **Preview** deployments
+3. Or log in with the same GitHub account that owns the project, then open the link again
+
+### If you still see white “404: NOT_FOUND”
 
 ### Vercel build settings (should auto-detect)
 
