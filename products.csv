@@ -1,0 +1,17 @@
+name,slug,description,categorySlug,image,extraImages,basePrice,tierMinQuantity,tierPrice,tierDiscountPercentage,sku,manufacturer,activeIngredients,dosageForm,packSize,inStock,stockQuantity,featured
+KD-3 Capsules,kd-3-capsules,,vitamins-minerals,https://res.cloudinary.com/tainzay/image/upload/KD-3_CAP.png,,395,10,348,,,Tainzay Pharma,,Capsule,,TRUE,420,TRUE
+Kof Mark Syrup,kof-mark-syrup,,cold-flu,https://res.cloudinary.com/tainzay/image/upload/KOF_MARK_SYP.png,,350,12,280,,,Tainzay Pharma,,Syrup,,TRUE,600,TRUE
+Medical Tablets,medical-tablets,,vitamins-minerals,https://res.cloudinary.com/tainzay/image/upload/MEDICAL_TAB.png,,799,10,699,,,Tainzay Pharma,,Tablet,,TRUE,300,FALSE
+Medigin Syrup,medigin-syrup,,brain-vision,https://res.cloudinary.com/tainzay/image/upload/MEDIGIN_SYP.png,,750,10,638,,,Tainzay Pharma,,Syrup,,TRUE,350,TRUE
+Medplexin Syrup,medplexin-syrup,,vitamins-minerals,https://res.cloudinary.com/tainzay/image/upload/MEDPLEXIN_SYP.png,,441,12,397,,,Tainzay Pharma,,Syrup,,TRUE,480,FALSE
+MG Vit D Tablets,mg-vit-d-tablets,,vitamins-minerals,https://res.cloudinary.com/tainzay/image/upload/MG_VIT_D_TAB.png,,1590,6,1299,,,Tainzay Pharma,,Tablet,,TRUE,220,TRUE
+Mullet Syrup,mullet-syrup,,vitamins-minerals,https://res.cloudinary.com/tainzay/image/upload/MULLET_SYP.png,,790,10,695,,,Tainzay Pharma,,Syrup,,TRUE,340,FALSE
+Mullet Tablets,mullet-tablets,,vitamins-minerals,https://res.cloudinary.com/tainzay/image/upload/MULLET_TAB.png,,790,10,695,,,Tainzay Pharma,,Tablet,,TRUE,360,FALSE
+Murex Syrup,murex-syrup,,brain-vision,https://res.cloudinary.com/tainzay/image/upload/MUREX_SYP_2.png,,790,10,672,,,Tainzay Pharma,,Syrup,,TRUE,280,FALSE
+Murex Tablets,murex-tablets,,brain-vision,https://res.cloudinary.com/tainzay/image/upload/MUREX_TAB.png,,790,10,695,,,Tainzay Pharma,,Tablet,,TRUE,310,TRUE
+Painset Gel,painset-gel,,pain-relief,https://res.cloudinary.com/tainzay/image/upload/PAINSET_GEL.png,,390,24,312,,,Tainzay Pharma,,Gel,,TRUE,540,TRUE
+T-Nase Drops,t-nase-drops,,respiratory,https://res.cloudinary.com/tainzay/image/upload/T-NASE_DROPS.png,,2390,5,2151,,,Tainzay Pharma,,Drops,,TRUE,150,TRUE
+Tancid Syrup,tancid-syrup,,gastrointestinal,https://res.cloudinary.com/tainzay/image/upload/TANCID_SYP.png,,270,24,210,,,Tainzay Pharma,,Syrup,,TRUE,650,TRUE
+Tanicob Tablets,tanicob-tablets,,vitamins-minerals,https://res.cloudinary.com/tainzay/image/upload/TANICOB_TAB.png,,1050,6,924,,,Tainzay Pharma,,Tablet,,TRUE,260,TRUE
+Vitowell Tablets,vitowell-tablets,,vitamins-minerals,https://res.cloudinary.com/tainzay/image/upload/VITOWELL_TAB.png,,699,10,594,,,Tainzay Pharma,,Tablet,,TRUE,400,TRUE
+Xalmeth Tablets,xalmeth-tablets,,pain-relief,https://res.cloudinary.com/tainzay/image/upload/XALMETH_TAB.png,,790,10,695,,,Tainzay Pharma,,Tablet,,TRUE,330,FALSE

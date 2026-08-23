@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" fill="#f9f9f9"/>
+  <rect x="140" y="80" width="120" height="220" rx="20" fill="#1f6e4a"/>
+  <rect x="155" y="100" width="90" height="80" rx="8" fill="#e8f5ef"/>
+  <rect x="165" y="200" width="70" height="12" rx="4" fill="#ffffff" fill-opacity="0.9"/>
+  <rect x="165" y="220" width="50" height="8" rx="3" fill="#ffffff" fill-opacity="0.6"/>
+  <ellipse cx="200" cy="70" rx="40" ry="18" fill="#185a3c"/>
+  <text x="200" y="340" text-anchor="middle" fill="#666666" font-family="Arial, sans-serif" font-size="14">Product Image</text>
+</svg>

@@ -1,0 +1,7 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" fill="none">
+  <rect width="640" height="400" fill="#2d5a4a"/>
+  <rect x="0" y="260" width="640" height="140" fill="#1a3d32"/>
+  <circle cx="160" cy="150" r="60" fill="#ffffff" fill-opacity="0.1"/>
+  <text x="60" y="210" fill="#ffffff" font-family="Arial, sans-serif" font-size="28" font-weight="700">Antibiotic Care</text>
+  <text x="60" y="250" fill="#e8f5ef" font-family="Arial, sans-serif" font-size="18">Stewardship for Pharmacists</text>
+</svg>

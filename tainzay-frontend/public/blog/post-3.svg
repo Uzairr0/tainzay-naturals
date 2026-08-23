@@ -1,0 +1,6 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" fill="none">
+  <rect width="640" height="400" fill="#3d4a6b"/>
+  <rect x="380" y="60" width="180" height="280" rx="20" fill="#ffffff" fill-opacity="0.12"/>
+  <text x="60" y="210" fill="#ffffff" font-family="Arial, sans-serif" font-size="28" font-weight="700">Cold Chain Guide</text>
+  <text x="60" y="250" fill="#dbeafe" font-family="Arial, sans-serif" font-size="18">Protecting Sensitive Medicines</text>
+</svg>

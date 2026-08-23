@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <defs>
+    <linearGradient id="mbg1" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#185a3c"/>
+      <stop offset="0.55" stop-color="#1f6e4a"/>
+      <stop offset="1" stop-color="#2d8a5e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#mbg1)"/>
+  <circle cx="690" cy="120" r="150" fill="#ffffff" fill-opacity="0.07"/>
+  <circle cx="110" cy="500" r="120" fill="#ffffff" fill-opacity="0.05"/>
+  <text x="400" y="215" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="52" font-weight="700">Your Trusted</text>
+  <text x="400" y="277" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="52" font-weight="700">Wholesale Partner</text>
+  <text x="400" y="335" text-anchor="middle" fill="#e8f5ef" font-family="Arial, sans-serif" font-size="24">Quality medicines for pharmacies,</text>
+  <text x="400" y="370" text-anchor="middle" fill="#e8f5ef" font-family="Arial, sans-serif" font-size="24">hospitals &amp; healthcare providers</text>
+  <rect x="290" y="415" width="220" height="56" rx="28" fill="#ffffff"/>
+  <text x="400" y="451" text-anchor="middle" fill="#1f6e4a" font-family="Arial, sans-serif" font-size="19" font-weight="700">Browse Products</text>
+</svg>

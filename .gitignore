@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Allow safe example templates
+!.env.example
+!**/.env.example
+!.env.local.example
+!**/.env.local.example
+
+# Build output
+dist/
+.next/
+out/
+build/
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# TypeScript
+*.tsbuildinfo
+
+# Vercel
+.vercel/

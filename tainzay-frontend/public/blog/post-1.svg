@@ -1,0 +1,7 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" fill="none">
+  <rect width="640" height="400" fill="#1f6e4a"/>
+  <rect x="40" y="40" width="560" height="320" fill="#185a3c" opacity="0.5"/>
+  <circle cx="480" cy="140" r="70" fill="#ffffff" fill-opacity="0.12"/>
+  <text x="60" y="210" fill="#ffffff" font-family="Arial, sans-serif" font-size="28" font-weight="700">Pharmacy Wholesale</text>
+  <text x="60" y="250" fill="#e8f5ef" font-family="Arial, sans-serif" font-size="18">Supply &amp; Inventory Insights</text>
+</svg>

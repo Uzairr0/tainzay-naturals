@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <defs>
+    <linearGradient id="mbg2" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4a1942"/>
+      <stop offset="0.55" stop-color="#7b2d6e"/>
+      <stop offset="1" stop-color="#c9a227"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#mbg2)"/>
+  <circle cx="670" cy="470" r="150" fill="#ffffff" fill-opacity="0.08"/>
+  <circle cx="130" cy="120" r="100" fill="#ffffff" fill-opacity="0.05"/>
+  <text x="400" y="215" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="48" font-weight="700">Wholesale Sale</text>
+  <text x="400" y="272" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="48" font-weight="700">is Live</text>
+  <text x="400" y="335" text-anchor="middle" fill="#fbbf24" font-family="Arial, sans-serif" font-size="42" font-weight="700">Bulk Discounts</text>
+  <text x="400" y="385" text-anchor="middle" fill="#f3e8ff" font-family="Arial, sans-serif" font-size="23">Competitive pharmaceutical pricing</text>
+  <rect x="300" y="425" width="200" height="56" rx="28" fill="#1a1a1a"/>
+  <text x="400" y="461" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="19" font-weight="700">Request Quote</text>
+</svg>
