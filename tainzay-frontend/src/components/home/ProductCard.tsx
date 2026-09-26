@@ -65,7 +65,7 @@ export default function ProductCard({
           alt={product.name}
           fill
           priority={priority}
-          loader={imageLoaderFor(imageSrc, 'square')}
+          loader={imageLoaderFor(imageSrc, 'square', product.imageFit)}
           className="product-card-image transition-transform duration-300 group-hover:scale-[1.05] motion-safe"
           sizes={sizes}
           onError={() => setImageSrc('/products/placeholder.svg')}

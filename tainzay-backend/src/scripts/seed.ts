@@ -192,6 +192,7 @@ async function seedProducts(categoryIds: Map<string, mongoose.Types.ObjectId>) {
       category: categoryId,
       image: row.image,
       images: toList(row.extraImages),
+      imageFit: row.imageFit?.trim().toLowerCase() === 'cover' ? 'cover' : 'cutout',
       basePrice,
       wholesaleTiers,
       // A blank SKU must stay undefined: the index is unique+sparse, so empty

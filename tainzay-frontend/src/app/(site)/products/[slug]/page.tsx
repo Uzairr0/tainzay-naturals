@@ -75,6 +75,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <ProductImageGallery
                 mainImage={product.image}
                 images={product.images}
+                imageFit={product.imageFit}
                 productName={product.name}
                 saleBadge={saleBadge}
               />

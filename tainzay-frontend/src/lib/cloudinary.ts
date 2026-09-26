@@ -40,46 +40,54 @@ export function cloudinaryLoader(props: ImageLoaderProps): string {
   return withTransformations(props.src, baseTransformations(props));
 }
 
-/** Shared product-on-white-square pipeline for cards and PDP. */
+/**
+ * Shared product-on-white-square pipeline for cards and PDP. Studio shots are
+ * tall frames with a small pack in the middle, so after removing the backdrop
+ * the empty space is trimmed away; the pack is then fitted into `fill` of the
+ * square and `c_mpad` adds the white margin without scaling it back up.
+ */
 function cloudinaryProductSquareLoader(
   props: ImageLoaderProps,
-  scaleFactor: number,
-  sharpen = 70,
+  fill: number,
+  sharpen: number,
 ): string {
   const { width, quality } = props;
-  const productWidth = Math.max(Math.round(width * scaleFactor), 140);
+  const productWidth = Math.round(width * fill);
 
   return withTransformationChain(props.src, [
-    ['e_background_removal', 'b_rgb:ffffff'],
-    [`c_scale,w_${productWidth}`],
-    [
-      'c_pad',
-      'ar_1:1',
-      'b_rgb:ffffff',
-      'g_center',
-      `w_${width}`,
-      'f_auto',
-      `q_${quality ?? 'auto:good'}`,
-      `e_sharpen:${sharpen}`,
-      'dpr_auto',
-    ],
+    ['e_background_removal'],
+    ['e_trim'],
+    ['c_pad', 'ar_1:1', 'b_rgb:ffffff', 'g_center', `w_${productWidth}`],
+    ['c_mpad', `w_${width}`, `h_${width}`, 'b_rgb:ffffff', 'g_center'],
+    ['f_auto', `q_${quality ?? 'auto:best'}`, `e_sharpen:${sharpen}`],
   ]);
 }
 
-/**
- * Product cards and small thumbnails: remove studio backgrounds and pad to a
- * white square. Scaled to ~90% so packs read large in grid tiles.
- */
+/** Product cards and small thumbnails: pack fills ~86% of the white square. */
 export function cloudinarySquareLoader(props: ImageLoaderProps): string {
-  return cloudinaryProductSquareLoader(props, 0.9, 80);
+  return cloudinaryProductSquareLoader(props, 0.86, 60);
+}
+
+/** Product detail gallery: slightly more breathing room around the pack. */
+export function cloudinaryPdpLoader(props: ImageLoaderProps): string {
+  return cloudinaryProductSquareLoader(props, 0.8, 50);
 }
 
 /**
- * Product detail gallery: remove baked-in studio backgrounds, place the pack
- * on a clean white square canvas, and scale to ~74% with light sharpen.
+ * Finished lifestyle photos (product styled in a scene): keep the scene and
+ * crop to a full-bleed square, since background removal would strip it.
  */
-export function cloudinaryPdpLoader(props: ImageLoaderProps): string {
-  return cloudinaryProductSquareLoader(props, 0.74, 65);
+export function cloudinaryPhotoSquareLoader(props: ImageLoaderProps): string {
+  const { width, quality } = props;
+
+  return withTransformations(props.src, [
+    'c_fill',
+    'ar_1:1',
+    'g_auto',
+    `w_${width}`,
+    'f_auto',
+    `q_${quality ?? 'auto:best'}`,
+  ]);
 }
 
 /** Collection / products page hero: sharp, full-width, natural aspect ratio. */
@@ -96,12 +104,22 @@ export function cloudinaryCollectionBannerLoader(props: ImageLoaderProps): strin
   ]);
 }
 
+/**
+ * How a product photo is framed: `cutout` removes the studio background and
+ * pads the pack onto white; `cover` shows a styled photo as-is, cropped square.
+ */
+export type ProductImageFit = 'cutout' | 'cover';
+
 /** Picks the right loader, leaving local files to Next's default pipeline. */
 export function imageLoaderFor(
   src: string,
   variant: 'square' | 'default' | 'pdp' | 'collection-banner' = 'default',
+  fit: ProductImageFit = 'cutout',
 ) {
   if (!isCloudinaryUrl(src)) return undefined;
+  if (fit === 'cover' && (variant === 'square' || variant === 'pdp')) {
+    return cloudinaryPhotoSquareLoader;
+  }
   if (variant === 'square') return cloudinarySquareLoader;
   if (variant === 'pdp') return cloudinaryPdpLoader;
   if (variant === 'collection-banner') return cloudinaryCollectionBannerLoader;

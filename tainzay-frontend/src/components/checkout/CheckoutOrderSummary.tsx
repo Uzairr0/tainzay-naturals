@@ -47,7 +47,7 @@ export default function CheckoutOrderSummary({
                   src={imageSrc}
                   alt={product.name}
                   fill
-                  loader={imageLoaderFor(imageSrc, 'square')}
+                  loader={imageLoaderFor(imageSrc, 'square', product.imageFit)}
                   className="object-contain p-0.5"
                   sizes="56px"
                 />

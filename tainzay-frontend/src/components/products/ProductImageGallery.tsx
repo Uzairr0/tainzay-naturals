@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { ZoomIn } from 'lucide-react';
-import { imageLoaderFor } from '@/lib/cloudinary';
+import { imageLoaderFor, type ProductImageFit } from '@/lib/cloudinary';
 
 interface ProductImageGalleryProps {
   mainImage: string;
   images?: string[];
+  imageFit?: ProductImageFit;
   productName: string;
   saleBadge?: string;
 }
@@ -15,6 +16,7 @@ interface ProductImageGalleryProps {
 export default function ProductImageGallery({
   mainImage,
   images = [],
+  imageFit,
   productName,
   saleBadge,
 }: ProductImageGalleryProps) {
@@ -52,7 +54,7 @@ export default function ProductImageGallery({
           alt={productName}
           fill
           priority
-          loader={imageLoaderFor(activeSrc, 'pdp')}
+          loader={imageLoaderFor(activeSrc, 'pdp', imageFit)}
           className="pdp-gallery-img"
           sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 480px"
           onError={() => setImgError((prev) => ({ ...prev, [activeIndex]: true }))}
@@ -83,7 +85,7 @@ export default function ProductImageGallery({
                   src={thumbSrc}
                   alt={`${productName} – image ${index + 1}`}
                   fill
-                  loader={imageLoaderFor(thumbSrc, 'pdp')}
+                  loader={imageLoaderFor(thumbSrc, 'pdp', imageFit)}
                   className="object-contain p-1"
                   sizes="80px"
                   onError={() => setImgError((prev) => ({ ...prev, [index]: true }))}

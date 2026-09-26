@@ -216,7 +216,7 @@ export default function ConcernFinderExperience({ productsBySlug }: ConcernFinde
                   src={recommendedProduct.image || '/products/placeholder.svg'}
                   alt={recommendedProduct.name}
                   fill
-                  loader={imageLoaderFor(recommendedProduct.image, 'square')}
+                  loader={imageLoaderFor(recommendedProduct.image, 'square', recommendedProduct.imageFit)}
                   className="concern-finder-result-image"
                   sizes="(max-width: 640px) 100vw, 320px"
                 />

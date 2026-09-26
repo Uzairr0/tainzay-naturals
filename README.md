@@ -98,8 +98,14 @@ Product and banner images are hosted on Cloudinary and referenced by URL; no
 files are uploaded through the API. Resizing and format conversion happen on
 Cloudinary's CDN via transformations injected by
 `tainzay-frontend/src/lib/cloudinary.ts`, so the original multi-megabyte assets
-are never served to browsers. Product cards use the square-padding loader, which
-pads portrait bottle photos to a 1:1 frame using the photo's own edge colour.
+are never served to browsers.
+
+Each product's `imageFit` column in `products.csv` picks how its photos are framed:
+
+- `cutout` (default, or blank): for studio shots. Cloudinary removes the
+  background and pads the pack onto a white 1:1 square.
+- `cover`: for finished lifestyle photos (product styled in a scene). The photo is
+  shown as-is, cropped to a full-bleed square. Upload these at 1200×1200 or larger.
 
 ## API Endpoints
 

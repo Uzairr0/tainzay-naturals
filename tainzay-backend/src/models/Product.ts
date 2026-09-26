@@ -14,6 +14,8 @@ export interface IProduct extends Document {
   category: mongoose.Types.ObjectId;
   image: string;
   images?: string[];
+  /** `cutout` strips studio backgrounds onto white; `cover` shows a styled photo as-is. */
+  imageFit: 'cutout' | 'cover';
   basePrice: number;
   wholesaleTiers: IWholesaleTier[];
   sku?: string;
@@ -82,6 +84,11 @@ const ProductSchema: Schema = new Schema(
     images: [{
       type: String,
     }],
+    imageFit: {
+      type: String,
+      enum: ['cutout', 'cover'],
+      default: 'cutout',
+    },
     basePrice: {
       type: Number,
       required: true,

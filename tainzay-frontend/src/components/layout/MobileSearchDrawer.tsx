@@ -40,7 +40,7 @@ function SearchDrawerProductCard({
           src={imageSrc}
           alt={product.name}
           fill
-          loader={imageLoaderFor(imageSrc, 'square')}
+          loader={imageLoaderFor(imageSrc, 'square', product.imageFit)}
           className="search-drawer-product-image"
           sizes="140px"
         />

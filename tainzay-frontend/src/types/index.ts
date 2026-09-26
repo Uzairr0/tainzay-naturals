@@ -1,3 +1,5 @@
+import type { ProductImageFit } from '@/lib/cloudinary';
+
 export interface WholesaleTier {
   minQuantity: number;
   price: number;
@@ -16,6 +18,8 @@ export interface Product {
   };
   image: string;
   images?: string[];
+  /** How product photos are framed; defaults to `cutout` when absent. */
+  imageFit?: ProductImageFit;
   basePrice: number;
   wholesaleTiers: WholesaleTier[];
   sku?: string;

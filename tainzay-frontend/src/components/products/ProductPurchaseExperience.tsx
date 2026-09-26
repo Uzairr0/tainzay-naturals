@@ -109,7 +109,7 @@ function ProductStickyBar({ product, quantity, onQuantityChange }: ProductSticky
               src={imageSrc}
               alt=""
               fill
-              loader={imageLoaderFor(imageSrc, 'square')}
+              loader={imageLoaderFor(imageSrc, 'square', product.imageFit)}
               className="object-contain p-1"
               sizes="48px"
             />
