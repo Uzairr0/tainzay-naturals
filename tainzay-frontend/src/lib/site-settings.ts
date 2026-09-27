@@ -16,12 +16,14 @@ function describeError(error: unknown): string {
 
 const DEFAULT_PUBLIC_SETTINGS: PublicSiteSettings = {
   supportEmail: 'guzair421@gmail.com',
-  phoneDisplay: '+92 318 4263597',
-  phoneTel: '+923184263597',
-  whatsappPhone: '923184263597',
+  phoneDisplay: '+92 304 1217777',
+  phoneTel: '+923041217777',
+  whatsappPhone: '923041217777',
   whatsappMessage: 'Hello, I am interested in Tainzay Naturals wellness products.',
   freeDeliveryMin: CHECKOUT_FREE_DELIVERY_MIN,
   deliveryFee: CHECKOUT_DELIVERY_FEE,
+  // Without the API there are no account details to show; checkout falls back to WhatsApp.
+  paymentMethods: [],
 };
 
 export function toCheckoutDeliverySettings(

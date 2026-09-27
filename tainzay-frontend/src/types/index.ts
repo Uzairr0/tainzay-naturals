@@ -90,12 +90,18 @@ export interface QuoteItem {
   requestedPrice?: number;
 }
 
+export type PaymentStatus = 'awaiting_verification' | 'paid' | 'rejected';
+
 export interface QuoteRequest {
   _id?: string;
   orderNumber?: string;
   source?: 'checkout' | 'quote';
   orderTotal?: number;
-  paymentMethod?: 'cod' | 'card';
+  /** Payment method id from site settings; legacy orders use `cod` / `card` */
+  paymentMethod?: string;
+  paymentMethodName?: string;
+  paymentReference?: string;
+  paymentStatus?: PaymentStatus;
   companyName: string;
   contactPerson: string;
   email: string;
@@ -104,9 +110,23 @@ export interface QuoteRequest {
   address?: string;
   items: QuoteItem[];
   message?: string;
-  status?: 'pending' | 'reviewed' | 'responded' | 'closed';
+  /** `closed` = dispatched/completed; closing a checkout order takes its items out of stock */
+  status?: 'pending' | 'reviewed' | 'responded' | 'closed' | 'cancelled';
+  closedAt?: string;
+  stockDeducted?: boolean;
   createdAt?: string;
   updatedAt?: string;
+}
+
+/** Stock movement caused by an order status change */
+export interface StockChange {
+  productName: string;
+  before: number;
+  after: number;
+}
+
+export interface QuoteStatusUpdateResponse extends QuoteRequest {
+  stockChanges: StockChange[];
 }
 
 export interface QuoteFormData {
@@ -120,7 +140,8 @@ export interface QuoteFormData {
   message?: string;
   source?: 'checkout' | 'quote';
   orderTotal?: number;
-  paymentMethod?: 'cod' | 'card';
+  paymentMethod?: string;
+  paymentReference?: string;
 }
 
 export interface ReviewProductRef {
@@ -220,6 +241,15 @@ export interface AdminNotificationsResponse {
   orders: AdminNotificationOrder[];
 }
 
+/** A prepaid payment option configured in Admin → Settings */
+export interface PaymentMethodOption {
+  id: string;
+  name: string;
+  /** Account details shown to the customer, one per line */
+  details: string;
+  enabled: boolean;
+}
+
 export interface PublicSiteSettings {
   supportEmail: string;
   phoneDisplay: string;
@@ -228,6 +258,8 @@ export interface PublicSiteSettings {
   whatsappMessage: string;
   freeDeliveryMin: number;
   deliveryFee: number;
+  /** Public settings list enabled methods only; admin settings list all of them */
+  paymentMethods: PaymentMethodOption[];
 }
 
 export interface SiteSettings extends PublicSiteSettings {

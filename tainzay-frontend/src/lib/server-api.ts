@@ -38,13 +38,27 @@ function buildUrl(path: string, params?: Record<string, string | number | undefi
   return url.toString();
 }
 
+/** Cache tags, so admin saves can refresh the matching storefront data at once. */
+export const CACHE_TAGS = {
+  settings: 'site-settings',
+  catalogue: 'catalogue',
+  reviews: 'reviews',
+} as const;
+
+function cacheTagsFor(path: string): string[] {
+  if (path.startsWith('/settings')) return [CACHE_TAGS.settings];
+  if (path.startsWith('/products') || path.startsWith('/categories')) return [CACHE_TAGS.catalogue];
+  if (path.startsWith('/reviews')) return [CACHE_TAGS.reviews];
+  return [];
+}
+
 async function fetchServerJson<T>(
   path: string,
   revalidateSeconds: number,
   params?: Record<string, string | number | undefined>,
 ): Promise<T> {
   const response = await fetch(buildUrl(path, params), {
-    next: { revalidate: revalidateSeconds },
+    next: { revalidate: revalidateSeconds, tags: cacheTagsFor(path) },
     headers: { Accept: 'application/json' },
   });
 

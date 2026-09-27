@@ -7,8 +7,11 @@ import {
   buildOrdersListHref,
   formatOrderSource,
   formatOrderStatus,
+  formatPaymentMethod,
+  formatPaymentStatus,
   getOrderSourceClass,
   getOrderStatusClass,
+  getPaymentStatusClass,
   summarizeOrderItems,
   type AdminOrderSource,
   type AdminOrderStatus,
@@ -23,6 +26,7 @@ const STATUS_TABS: Array<{ id: AdminOrderStatus | 'all'; label: string }> = [
   { id: 'reviewed', label: 'Reviewed' },
   { id: 'responded', label: 'Responded' },
   { id: 'closed', label: 'Closed' },
+  { id: 'cancelled', label: 'Cancelled' },
 ];
 
 const SOURCE_TABS: Array<{ id: AdminOrderSource | 'all'; label: string }> = [
@@ -108,6 +112,7 @@ export default function AdminOrdersManager({
                 <th>Total</th>
                 <th>Date</th>
                 <th>Source</th>
+                <th>Payment</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -145,6 +150,15 @@ export default function AdminOrdersManager({
                     <span className={getOrderSourceClass(order.source)}>
                       {formatOrderSource(order.source)}
                     </span>
+                  </td>
+                  <td data-label="Payment">
+                    {order.paymentStatus ? (
+                      <span className={getPaymentStatusClass(order.paymentStatus)}>
+                        {formatPaymentStatus(order.paymentStatus)}
+                      </span>
+                    ) : (
+                      formatPaymentMethod(order)
+                    )}
                   </td>
                   <td data-label="Status">
                     <span className={getOrderStatusClass(order.status)}>

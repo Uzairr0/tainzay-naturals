@@ -23,7 +23,11 @@ export default async function CheckoutPage() {
 
   return (
     <Suspense fallback={<CheckoutFallback />}>
-      <CheckoutPageContent deliverySettings={deliverySettings} />
+      <CheckoutPageContent
+        deliverySettings={deliverySettings}
+        paymentMethods={settings.paymentMethods ?? []}
+        whatsappPhone={settings.whatsappPhone}
+      />
     </Suspense>
   );
 }

@@ -47,8 +47,6 @@ export const CHECKOUT_CITIES = [
   'Other',
 ] as const;
 
-export type PaymentMethod = 'cod' | 'card';
-
 export interface CheckoutFormValues {
   email: string;
   firstName: string;
@@ -57,7 +55,10 @@ export interface CheckoutFormValues {
   address: string;
   city: string;
   phone: string;
-  paymentMethod: PaymentMethod;
+  /** Id of a payment method from site settings */
+  paymentMethod: string;
+  /** Transaction ID of the customer's transfer */
+  paymentReference: string;
 }
 
 export const EMPTY_CHECKOUT_FORM: CheckoutFormValues = {
@@ -68,5 +69,41 @@ export const EMPTY_CHECKOUT_FORM: CheckoutFormValues = {
   address: '',
   city: '',
   phone: '',
-  paymentMethod: 'cod',
+  paymentMethod: '',
+  paymentReference: '',
 };
+
+export interface WhatsAppOrderLine {
+  name: string;
+  quantity: number;
+  lineTotal: number;
+}
+
+function formatRs(amount: number): string {
+  return `Rs.${Math.round(amount).toLocaleString('en-PK')}`;
+}
+
+/** Pre-filled WhatsApp message for customers who'd rather arrange payment in chat */
+export function buildWhatsAppOrderMessage(
+  lines: WhatsAppOrderLine[],
+  totals: { deliveryFee: number; total: number },
+  values: Pick<CheckoutFormValues, 'firstName' | 'lastName' | 'city'>,
+): string {
+  const name = `${values.firstName} ${values.lastName}`.trim();
+  const items = lines.map(
+    (line) => `• ${line.name} x ${line.quantity} = ${formatRs(line.lineTotal)}`,
+  );
+
+  return [
+    'Hello Tainzy Naturals, I would like to place this order:',
+    '',
+    ...items,
+    '',
+    `Delivery: ${totals.deliveryFee === 0 ? 'Free' : formatRs(totals.deliveryFee)}`,
+    `Total: ${formatRs(totals.total)}`,
+    ...(name ? ['', `Name: ${name}`] : []),
+    ...(values.city ? [`City: ${values.city}`] : []),
+    '',
+    'Please share how I can complete the payment.',
+  ].join('\n');
+}

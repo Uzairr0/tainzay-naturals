@@ -6,11 +6,16 @@ import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import {
   ADMIN_ORDER_STATUSES,
+  ADMIN_PAYMENT_STATUSES,
   formatOrderSource,
   formatOrderStatus,
+  formatPaymentMethod,
+  formatPaymentStatus,
   getOrderSourceClass,
   getOrderStatusClass,
+  getPaymentStatusClass,
   type AdminOrderStatus,
+  type AdminPaymentStatus,
 } from '@/lib/admin-orders';
 import { quotesApi } from '@/lib/api';
 import { formatPrice } from '@/lib/format';
@@ -28,6 +33,34 @@ export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDeta
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState<AdminPaymentStatus>(
+    order.paymentStatus ?? 'awaiting_verification',
+  );
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
+
+  async function handlePaymentSave(event: React.FormEvent) {
+    event.preventDefault();
+    if (!order._id) return;
+
+    setIsSavingPayment(true);
+    setSaveError('');
+    setSaveSuccess('');
+
+    try {
+      const response = await quotesApi.updatePaymentStatus(order._id, paymentStatus);
+      setOrder(response.data);
+      setPaymentStatus(response.data.paymentStatus ?? paymentStatus);
+      setSaveSuccess('Payment status updated.');
+      router.refresh();
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Failed to update payment status.';
+      setSaveError(message);
+    } finally {
+      setIsSavingPayment(false);
+    }
+  }
 
   async function handleStatusSave(event: React.FormEvent) {
     event.preventDefault();
@@ -39,9 +72,16 @@ export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDeta
 
     try {
       const response = await quotesApi.updateStatus(order._id, status);
-      setOrder(response.data);
-      setStatus(response.data.status ?? status);
-      setSaveSuccess('Order status updated.');
+      const { stockChanges, ...updatedOrder } = response.data;
+      setOrder(updatedOrder);
+      setStatus(updatedOrder.status ?? status);
+      setSaveSuccess(
+        stockChanges.length > 0
+          ? `Order status updated. Stock updated: ${stockChanges
+              .map((change) => `${change.productName} ${change.before} → ${change.after}`)
+              .join(', ')}.`
+          : 'Order status updated.',
+      );
       router.refresh();
     } catch (error: unknown) {
       const message =
@@ -70,6 +110,11 @@ export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDeta
             )}
             <span className={getOrderSourceClass(order.source)}>{formatOrderSource(order.source)}</span>
             <span className={getOrderStatusClass(order.status)}>{formatOrderStatus(order.status)}</span>
+            {order.paymentStatus && (
+              <span className={getPaymentStatusClass(order.paymentStatus)}>
+                Payment: {formatPaymentStatus(order.paymentStatus)}
+              </span>
+            )}
           </div>
         </div>
 
@@ -154,13 +199,57 @@ export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDeta
             </div>
             <div>
               <dt>Payment method</dt>
-              <dd>{order.paymentMethod === 'card' ? 'Card' : order.paymentMethod === 'cod' ? 'Cash on delivery' : '—'}</dd>
+              <dd>{formatPaymentMethod(order)}</dd>
             </div>
+            {order.paymentReference && (
+              <div>
+                <dt>Transaction ID</dt>
+                <dd>{order.paymentReference}</dd>
+              </div>
+            )}
+            {order.paymentStatus && (
+              <div>
+                <dt>Payment status</dt>
+                <dd>
+                  <span className={getPaymentStatusClass(order.paymentStatus)}>
+                    {formatPaymentStatus(order.paymentStatus)}
+                  </span>
+                </dd>
+              </div>
+            )}
             <div>
               <dt>Source</dt>
               <dd>{formatOrderSource(order.source)}</dd>
             </div>
           </dl>
+
+          {order.source === 'checkout' && (
+            <form className="admin-order-status-form admin-payment-status-form" onSubmit={handlePaymentSave}>
+              <label className="admin-order-status-field" htmlFor="order-payment-status">
+                <span className="admin-form-label">Payment status</span>
+                <select
+                  id="order-payment-status"
+                  className="admin-form-select"
+                  value={paymentStatus}
+                  disabled={isSavingPayment}
+                  onChange={(event) => setPaymentStatus(event.target.value as AdminPaymentStatus)}
+                >
+                  {ADMIN_PAYMENT_STATUSES.map((option) => (
+                    <option key={option} value={option}>
+                      {formatPaymentStatus(option)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="submit"
+                className="admin-action-btn admin-action-btn-approve"
+                disabled={isSavingPayment}
+              >
+                {isSavingPayment ? 'Saving…' : 'Save payment'}
+              </button>
+            </form>
+          )}
         </section>
       </div>
 

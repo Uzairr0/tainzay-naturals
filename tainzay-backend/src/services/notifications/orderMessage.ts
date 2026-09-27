@@ -1,4 +1,4 @@
-import type { IQuoteRequest } from '../../models/QuoteRequest';
+import type { IQuoteRequest, PaymentStatus } from '../../models/QuoteRequest';
 
 function formatCurrency(amount: number): string {
   return `Rs.${Math.round(amount).toLocaleString('en-PK')}`;
@@ -25,10 +25,24 @@ function getOrderTotal(quote: IQuoteRequest): number {
 }
 
 function getPaymentLabel(quote: IQuoteRequest): string {
+  if (quote.paymentMethodName) return quote.paymentMethodName;
   if (quote.paymentMethod === 'cod') return 'Cash on Delivery';
   if (quote.paymentMethod === 'card') return 'Card';
   const match = quote.message?.match(/Payment:\s*(.+)/i);
   return match?.[1]?.trim() ?? 'Not specified';
+}
+
+const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  awaiting_verification: 'Awaiting verification',
+  paid: 'Paid',
+  rejected: 'Payment not received',
+};
+
+/** Payment status and transaction ID lines; empty for quotes and legacy orders. */
+function buildPaymentStatusLines(quote: IQuoteRequest): string {
+  if (!quote.paymentStatus) return '';
+  const reference = quote.paymentReference ? `\nTransaction ID: ${quote.paymentReference}` : '';
+  return `\nPayment status: ${PAYMENT_STATUS_LABELS[quote.paymentStatus]}${reference}`;
 }
 
 /** Exact customer-facing template for email and WhatsApp */
@@ -49,7 +63,7 @@ Your order has been successfully received and is now being processed.
 Order #: ${orderNumber}
 Items: ${items}
 Total: ${orderTotal}
-Payment: ${paymentMethod}
+Payment: ${paymentMethod}${buildPaymentStatusLines(quote)}
 
 We'll notify you once your order has been dispatched, along with the tracking details.
 
@@ -96,6 +110,10 @@ export function buildAdminOrderAlertMessage(quote: IQuoteRequest): string {
   const orderTotal = formatCurrency(getOrderTotal(quote));
   const paymentMethod = getPaymentLabel(quote);
   const sourceLabel = getOrderSourceLabel(quote);
+  const nextStep =
+    quote.paymentStatus === 'awaiting_verification'
+      ? 'Check that the payment has arrived, then mark it as paid in the admin panel.'
+      : 'Open the admin panel to review and respond.';
 
   return `New ${sourceLabel.toLowerCase()} — ${orderNumber}
 
@@ -105,10 +123,10 @@ Email: ${quote.email}
 Phone: ${quote.phone}
 Items: ${items}
 Total: ${orderTotal}
-Payment: ${paymentMethod}
+Payment: ${paymentMethod}${buildPaymentStatusLines(quote)}
 Status: ${quote.status}
 
-Open the admin panel to review and respond.`;
+${nextStep}`;
 }
 
 export function buildAdminOrderAlertEmail(quote: IQuoteRequest): {

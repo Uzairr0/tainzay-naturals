@@ -10,17 +10,15 @@ export const SITE = {
   about:
     'Tainzay Naturals offers quality vitamins, supplements, and wellness products across Pakistan — from immunity and pain relief to vitamins, minerals, and everyday health solutions.',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
-  phoneDisplay: '+92 318 4263597',
-  phoneTel: '+923184263597',
+  phoneDisplay: '+92 304 1217777',
+  phoneTel: '+923041217777',
   email: 'guzair421@gmail.com',
   address: '123 Pharmaceutical Street, Industrial Area, Lahore, Pakistan',
-  whatsappPhone: '923184263597',
+  whatsappPhone: '923041217777',
   whatsappMessage: 'Hello, I am interested in Tainzay Naturals wellness products.',
   social: {
     facebook: 'https://facebook.com',
-    instagram: 'https://instagram.com',
-    youtube: 'https://youtube.com',
-    linkedin: 'https://linkedin.com',
+    instagram: 'https://www.instagram.com/tainzyinternational',
   },
 } as const;
 

@@ -9,26 +9,42 @@ import CheckoutOrderSummary from '@/components/checkout/CheckoutOrderSummary';
 import { useCart } from '@/hooks/useCart';
 import { productsApi, quotesApi } from '@/lib/api';
 import { clearCart } from '@/lib/cart';
-import { getCheckoutDeliveryFee, EMPTY_CHECKOUT_FORM, type CheckoutDeliverySettings, DEFAULT_CHECKOUT_DELIVERY, type CheckoutFormValues } from '@/lib/checkout';
+import {
+  buildWhatsAppOrderMessage,
+  getCheckoutDeliveryFee,
+  EMPTY_CHECKOUT_FORM,
+  type CheckoutDeliverySettings,
+  DEFAULT_CHECKOUT_DELIVERY,
+  type CheckoutFormValues,
+} from '@/lib/checkout';
+import { getWhatsAppUrl, SITE } from '@/lib/site-config';
 import { getDisplayLineSubtotal, getProductDisplayPricing } from '@/lib/product-pricing';
-import type { Product, QuoteItem } from '@/types';
+import type { PaymentMethodOption, Product, QuoteItem } from '@/types';
 
 export default function CheckoutPageContent({
   deliverySettings = DEFAULT_CHECKOUT_DELIVERY,
+  paymentMethods = [],
+  whatsappPhone = SITE.whatsappPhone,
 }: {
   deliverySettings?: CheckoutDeliverySettings;
+  paymentMethods?: PaymentMethodOption[];
+  whatsappPhone?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { lines, hydrated, addItem } = useCart();
   const [products, setProducts] = useState<Record<string, Product>>({});
   const [loadingProducts, setLoadingProducts] = useState(false);
-  const [formValues, setFormValues] = useState<CheckoutFormValues>(EMPTY_CHECKOUT_FORM);
+  const [formValues, setFormValues] = useState<CheckoutFormValues>(() => ({
+    ...EMPTY_CHECKOUT_FORM,
+    paymentMethod: paymentMethods[0]?.id ?? '',
+  }));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [placedOrderNumber, setPlacedOrderNumber] = useState('');
   const [placedContact, setPlacedContact] = useState({ email: '', phone: '' });
+  const [placedPaymentName, setPlacedPaymentName] = useState('');
   const processedDirectRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -112,9 +128,42 @@ export default function CheckoutPageContent({
     };
   }, [lines, products, deliverySettings]);
 
+  const whatsappOrderUrl = useMemo(() => {
+    const orderLines = lines.flatMap((line) => {
+      const product = products[line.slug];
+      if (!product) return [];
+      return [
+        {
+          name: product.name,
+          quantity: line.quantity,
+          lineTotal: getDisplayLineSubtotal(product, line.quantity),
+        },
+      ];
+    });
+
+    return getWhatsAppUrl(
+      whatsappPhone,
+      buildWhatsAppOrderMessage(orderLines, totals, formValues),
+    );
+  }, [lines, products, totals, formValues, whatsappPhone]);
+
+  const selectedPaymentMethod = paymentMethods.find(
+    (method) => method.id === formValues.paymentMethod,
+  );
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitError('');
+
+    if (!selectedPaymentMethod) {
+      setSubmitError('Please choose a payment method.');
+      return;
+    }
+    if (!formValues.paymentReference.trim()) {
+      setSubmitError('Please enter the transaction ID of your payment.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     const contactPerson = `${formValues.firstName.trim()} ${formValues.lastName.trim()}`.trim();
@@ -152,10 +201,11 @@ export default function CheckoutPageContent({
         items,
         source: 'checkout',
         orderTotal: totals.total,
-        paymentMethod: formValues.paymentMethod,
+        paymentMethod: selectedPaymentMethod.id,
+        paymentReference: formValues.paymentReference.trim(),
         message: [
           'Online checkout order',
-          `Payment: ${formValues.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Card'}`,
+          `Payment: ${selectedPaymentMethod.name}`,
           `Delivery fee: ${totals.deliveryFee === 0 ? 'Free' : `Rs.${totals.deliveryFee.toLocaleString('en-PK')}`}`,
           `Order total: Rs.${totals.total.toLocaleString('en-PK')}`,
         ].join('\n'),
@@ -163,6 +213,7 @@ export default function CheckoutPageContent({
 
       clearCart();
       setPlacedOrderNumber(data.orderNumber ?? '');
+      setPlacedPaymentName(selectedPaymentMethod.name);
       setPlacedContact({
         email: formValues.email.trim(),
         phone: formValues.phone.trim(),
@@ -203,7 +254,9 @@ export default function CheckoutPageContent({
               </p>
             ) : null}
             <p className="checkout-success-text">
-              We have received your order. Your order details have been sent to{' '}
+              We have received your order and your {placedPaymentName || 'payment'} details. We
+              will confirm your payment and then start processing your order. Your order details
+              have been sent to{' '}
               {placedContact.email && placedContact.phone ? (
                 <>
                   <strong>{placedContact.email}</strong> and WhatsApp on{' '}
@@ -265,6 +318,9 @@ export default function CheckoutPageContent({
               error={submitError}
               subtotal={totals.subtotal}
               deliverySettings={deliverySettings}
+              paymentMethods={paymentMethods}
+              orderTotal={totals.total}
+              whatsappOrderUrl={whatsappOrderUrl}
             />
             <CheckoutOrderSummary
               lines={lines}

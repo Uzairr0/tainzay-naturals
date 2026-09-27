@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAdmin } from '../middleware/requireAdmin';
 import {
   deleteReview,
   getApprovedReviews,
@@ -12,9 +13,9 @@ const router = express.Router();
 
 router.get('/approved', getApprovedReviews);
 router.get('/product/:slug', getReviewsByProductSlug);
-router.get('/', getReviews);
+router.get('/', requireAdmin, getReviews);
 router.post('/', submitReview);
-router.patch('/:id/status', updateReviewStatus);
-router.delete('/:id', deleteReview);
+router.patch('/:id/status', requireAdmin, updateReviewStatus);
+router.delete('/:id', requireAdmin, deleteReview);
 
 export default router;

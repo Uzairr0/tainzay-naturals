@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { adminApi } from '@/lib/api';
-import type { AdminSettingsResponse } from '@/types';
+import type { AdminSettingsResponse, PaymentMethodOption } from '@/types';
 
 interface AdminSettingsFormProps {
   initialData: AdminSettingsResponse;
@@ -17,6 +17,33 @@ export default function AdminSettingsForm({ initialData, error }: AdminSettingsF
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
+
+  function updatePaymentMethod(index: number, changes: Partial<PaymentMethodOption>) {
+    setSettings((current) => ({
+      ...current,
+      paymentMethods: current.paymentMethods.map((method, i) =>
+        i === index ? { ...method, ...changes } : method,
+      ),
+    }));
+  }
+
+  function addPaymentMethod() {
+    setSettings((current) => ({
+      ...current,
+      // The backend derives the id from the name when saving
+      paymentMethods: [
+        ...current.paymentMethods,
+        { id: '', name: '', details: '', enabled: true },
+      ],
+    }));
+  }
+
+  function removePaymentMethod(index: number) {
+    setSettings((current) => ({
+      ...current,
+      paymentMethods: current.paymentMethods.filter((_, i) => i !== index),
+    }));
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -162,6 +189,79 @@ export default function AdminSettingsForm({ initialData, error }: AdminSettingsF
               />
             </label>
           </div>
+        </section>
+
+        <section className="admin-detail-card">
+          <h2 className="admin-detail-card-title">Payment methods</h2>
+          <p className="admin-settings-help">
+            Customers must pay before an order is processed. Enabled methods and their details
+            are shown at checkout; customers then enter the transaction ID of their payment.
+          </p>
+
+          <div className="admin-payment-methods">
+            {settings.paymentMethods.map((method, index) => (
+              <div key={index} className="admin-payment-method">
+                <div className="admin-payment-method-head">
+                  <label className="admin-order-status-field" htmlFor={`payment-name-${index}`}>
+                    <span className="admin-form-label">Name</span>
+                    <input
+                      id={`payment-name-${index}`}
+                      type="text"
+                      className="admin-form-input"
+                      value={method.name}
+                      disabled={isSaving}
+                      onChange={(event) =>
+                        updatePaymentMethod(index, { name: event.target.value })
+                      }
+                    />
+                  </label>
+                  <label className="admin-product-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={method.enabled}
+                      disabled={isSaving}
+                      onChange={(event) =>
+                        updatePaymentMethod(index, { enabled: event.target.checked })
+                      }
+                    />
+                    <span>Show at checkout</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="admin-action-btn admin-action-btn-reject"
+                    disabled={isSaving}
+                    onClick={() => removePaymentMethod(index)}
+                  >
+                    Remove
+                  </button>
+                </div>
+                <label className="admin-order-status-field" htmlFor={`payment-details-${index}`}>
+                  <span className="admin-form-label">
+                    Account details shown to customers (one per line)
+                  </span>
+                  <textarea
+                    id={`payment-details-${index}`}
+                    className="admin-form-textarea"
+                    rows={4}
+                    value={method.details}
+                    disabled={isSaving}
+                    onChange={(event) =>
+                      updatePaymentMethod(index, { details: event.target.value })
+                    }
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="admin-action-btn admin-action-btn-view"
+            disabled={isSaving}
+            onClick={addPaymentMethod}
+          >
+            Add payment method
+          </button>
         </section>
 
         <section className="admin-detail-card">

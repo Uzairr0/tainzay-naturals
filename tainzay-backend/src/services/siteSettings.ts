@@ -1,4 +1,8 @@
-import SiteSettings, { DEFAULT_SITE_SETTINGS, type ISiteSettings } from '../models/SiteSettings';
+import SiteSettings, {
+  DEFAULT_SITE_SETTINGS,
+  type IPaymentMethod,
+  type ISiteSettings,
+} from '../models/SiteSettings';
 
 export async function getOrCreateSiteSettings(): Promise<ISiteSettings> {
   const existing = await SiteSettings.findOne();
@@ -14,6 +18,7 @@ export type SiteSettingsUpdate = Partial<{
   whatsappMessage: string;
   freeDeliveryMin: number;
   deliveryFee: number;
+  paymentMethods: IPaymentMethod[];
   notifyEmailOnOrder: boolean;
   notifyWhatsAppOnOrder: boolean;
   notifyAdminOnReview: boolean;

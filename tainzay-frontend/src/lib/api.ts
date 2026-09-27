@@ -7,6 +7,7 @@ import type {
   ProductListResponse,
   QuoteFormData,
   QuoteRequest,
+  QuoteStatusUpdateResponse,
   Review,
   ReviewFormData,
   ReviewListResponse,
@@ -29,6 +30,32 @@ const api = axios.create({
   timeout: 15000,
 });
 
+/**
+ * Admin endpoints need the backend's admin secret. On the Next.js server we add
+ * it directly; in the browser we go through /api/admin/backend, which checks the
+ * login cookie and adds the secret there, so it never reaches client code.
+ */
+const adminServerApi = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${process.env.ADMIN_SESSION_SECRET ?? ''}`,
+  },
+  timeout: 15000,
+});
+
+const adminBrowserApi = axios.create({
+  baseURL: '/api/admin/backend',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 15000,
+});
+
+function adminApiClient() {
+  return typeof window === 'undefined' ? adminServerApi : adminBrowserApi;
+}
+
 // Products
 export const productsApi = {
   getAll: (params?: ProductQueryParams) =>
@@ -39,8 +66,9 @@ export const productsApi = {
   getByCategory: (slug: string) => api.get<Product[]>(`/products/category/${slug}`),
   getFeatured: (limit?: number) =>
     api.get<Product[]>('/products/featured', { params: limit ? { limit } : undefined }),
-  getById: (id: string) => api.get<Product>(`/products/id/${id}`),
-  update: (id: string, data: AdminProductUpdate) => api.put<Product>(`/products/${id}`, data),
+  getById: (id: string) => adminApiClient().get<Product>(`/products/id/${id}`),
+  update: (id: string, data: AdminProductUpdate) =>
+    adminApiClient().put<Product>(`/products/${id}`, data),
 };
 
 // Categories
@@ -55,10 +83,12 @@ export const quotesApi = {
   getAll: (params?: {
     status?: NonNullable<QuoteRequest['status']>;
     source?: NonNullable<QuoteRequest['source']>;
-  }) => api.get<QuoteRequest[]>('/quotes', { params }),
-  getById: (id: string) => api.get<QuoteRequest>(`/quotes/${id}`),
+  }) => adminApiClient().get<QuoteRequest[]>('/quotes', { params }),
+  getById: (id: string) => adminApiClient().get<QuoteRequest>(`/quotes/${id}`),
   updateStatus: (id: string, status: NonNullable<QuoteRequest['status']>) =>
-    api.patch<QuoteRequest>(`/quotes/${id}/status`, { status }),
+    adminApiClient().patch<QuoteStatusUpdateResponse>(`/quotes/${id}/status`, { status }),
+  updatePaymentStatus: (id: string, paymentStatus: NonNullable<QuoteRequest['paymentStatus']>) =>
+    adminApiClient().patch<QuoteRequest>(`/quotes/${id}/payment-status`, { paymentStatus }),
 };
 
 // Reviews
@@ -68,19 +98,20 @@ export const reviewsApi = {
   getByProduct: (slug: string, params?: { page?: number; limit?: number }) =>
     api.get<ReviewListResponse>(`/reviews/product/${slug}`, { params }),
   getAll: (params?: { status?: Review['status'] }) =>
-    api.get<Review[]>('/reviews', { params }),
+    adminApiClient().get<Review[]>('/reviews', { params }),
   create: (data: ReviewFormData) => api.post<ReviewSubmitResponse>('/reviews', data),
   updateStatus: (id: string, status: Review['status']) =>
-    api.patch<Review>(`/reviews/${id}/status`, { status }),
+    adminApiClient().patch<Review>(`/reviews/${id}/status`, { status }),
 };
 
 // Admin
 export const adminApi = {
-  getDashboard: () => api.get<AdminDashboardStats>('/admin/dashboard'),
-  getNotifications: () => api.get<AdminNotificationsResponse>('/admin/notifications'),
-  getSettings: () => api.get<AdminSettingsResponse>('/admin/settings'),
+  getDashboard: () => adminApiClient().get<AdminDashboardStats>('/admin/dashboard'),
+  getNotifications: () =>
+    adminApiClient().get<AdminNotificationsResponse>('/admin/notifications'),
+  getSettings: () => adminApiClient().get<AdminSettingsResponse>('/admin/settings'),
   updateSettings: (data: Partial<SiteSettings>) =>
-    api.patch<AdminSettingsResponse>('/admin/settings', data),
+    adminApiClient().patch<AdminSettingsResponse>('/admin/settings', data),
 };
 
 // Public settings

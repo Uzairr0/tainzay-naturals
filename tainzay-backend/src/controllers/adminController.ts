@@ -34,19 +34,26 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
     const weekStart = startOfWeek();
     const monthStart = startOfMonth();
     const checkoutFilter = { source: 'checkout' as const };
+    // Cancelled orders are not sales, so they stay out of the order counts
+    const placedFilter = { ...checkoutFilter, status: { $ne: 'cancelled' as const } };
 
     const [
       ordersThisWeek,
       ordersThisMonth,
-      monthOrders,
+      closedThisMonth,
       pendingReviews,
       outOfStockProducts,
       recentOrders,
       pendingReviewsList,
     ] = await Promise.all([
-      QuoteRequest.countDocuments({ ...checkoutFilter, createdAt: { $gte: weekStart } }),
-      QuoteRequest.countDocuments({ ...checkoutFilter, createdAt: { $gte: monthStart } }),
-      QuoteRequest.find({ ...checkoutFilter, createdAt: { $gte: monthStart } }).select('orderTotal'),
+      QuoteRequest.countDocuments({ ...placedFilter, createdAt: { $gte: weekStart } }),
+      QuoteRequest.countDocuments({ ...placedFilter, createdAt: { $gte: monthStart } }),
+      // Revenue is earned when an order is closed (dispatched), dated by when it closed
+      QuoteRequest.find({
+        ...checkoutFilter,
+        status: 'closed',
+        closedAt: { $gte: monthStart },
+      }).select('orderTotal'),
       Review.countDocuments({ status: 'pending' }),
       Product.countDocuments({ inStock: false }),
       QuoteRequest.find(checkoutFilter)
@@ -59,9 +66,14 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
         .select('productName productSlug authorName rating comment createdAt'),
     ]);
 
-    const revenueThisMonth = monthOrders.reduce((sum, order) => sum + (order.orderTotal ?? 0), 0);
+    const revenueThisMonth = closedThisMonth.reduce(
+      (sum, order) => sum + (order.orderTotal ?? 0),
+      0,
+    );
     const averageOrderValue =
-      ordersThisMonth > 0 ? Math.round((revenueThisMonth / ordersThisMonth) * 100) / 100 : 0;
+      closedThisMonth.length > 0
+        ? Math.round((revenueThisMonth / closedThisMonth.length) * 100) / 100
+        : 0;
 
     res.json({
       kpis: {

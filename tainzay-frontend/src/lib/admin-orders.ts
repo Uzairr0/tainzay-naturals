@@ -14,6 +14,7 @@ export const ADMIN_ORDER_STATUSES: AdminOrderStatus[] = [
   'reviewed',
   'responded',
   'closed',
+  'cancelled',
 ];
 
 export const ADMIN_ORDER_SOURCES: AdminOrderSource[] = ['checkout', 'quote'];
@@ -40,6 +41,8 @@ export function getOrderStatusClass(status?: QuoteRequest['status']) {
       return 'admin-status admin-status-responded';
     case 'closed':
       return 'admin-status admin-status-closed';
+    case 'cancelled':
+      return 'admin-status admin-status-cancelled';
     default:
       return 'admin-status admin-status-pending';
   }
@@ -52,10 +55,52 @@ export function formatOrderStatus(status?: QuoteRequest['status']) {
     case 'responded':
       return 'Responded';
     case 'closed':
-      return 'Closed';
+      return 'Closed (dispatched)';
+    case 'cancelled':
+      return 'Cancelled';
     default:
       return 'Pending';
   }
+}
+
+export type AdminPaymentStatus = NonNullable<QuoteRequest['paymentStatus']>;
+
+export const ADMIN_PAYMENT_STATUSES: AdminPaymentStatus[] = [
+  'awaiting_verification',
+  'paid',
+  'rejected',
+];
+
+export function formatPaymentStatus(status?: QuoteRequest['paymentStatus']) {
+  switch (status) {
+    case 'paid':
+      return 'Paid';
+    case 'rejected':
+      return 'Not received';
+    case 'awaiting_verification':
+      return 'Awaiting verification';
+    default:
+      return '—';
+  }
+}
+
+export function getPaymentStatusClass(status?: QuoteRequest['paymentStatus']) {
+  switch (status) {
+    case 'paid':
+      return 'admin-status admin-status-responded';
+    case 'rejected':
+      return 'admin-status admin-status-cancelled';
+    default:
+      return 'admin-status admin-status-pending';
+  }
+}
+
+/** Method name saved on the order, falling back to labels for pre-prepaid orders */
+export function formatPaymentMethod(order: QuoteRequest) {
+  if (order.paymentMethodName) return order.paymentMethodName;
+  if (order.paymentMethod === 'cod') return 'Cash on delivery';
+  if (order.paymentMethod === 'card') return 'Card';
+  return '—';
 }
 
 export function formatOrderSource(source?: QuoteRequest['source']) {

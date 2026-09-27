@@ -97,10 +97,6 @@ export default function ProductCard({
           className="product-card-rating"
         />
 
-        {product.packSize && (
-          <p className="product-card-meta">{product.packSize}</p>
-        )}
-
         <div className="product-card-prices">
           {originalPrice > salePrice && (
             <span className="price-original">{formatPrice(originalPrice)}</span>

@@ -37,7 +37,7 @@ const KPI_CARDS: Array<{
   {
     key: 'revenueThisMonth',
     label: 'Revenue This Month',
-    hint: 'Checkout totals',
+    hint: 'Closed (dispatched) orders',
     tone: 'green',
     format: (value) => formatPrice(value),
   },
@@ -51,7 +51,7 @@ const KPI_CARDS: Array<{
   {
     key: 'averageOrderValue',
     label: 'Average Order Value',
-    hint: 'This month',
+    hint: 'Closed orders this month',
     tone: 'lavender',
     format: (value) => formatPrice(value),
   },

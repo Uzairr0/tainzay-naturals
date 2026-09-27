@@ -7,11 +7,24 @@ export interface IQuoteItem {
   requestedPrice?: number;
 }
 
+/** `closed` means dispatched/completed; `cancelled` orders never count as sales */
+export const ORDER_STATUSES = ['pending', 'reviewed', 'responded', 'closed', 'cancelled'] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export const PAYMENT_STATUSES = ['awaiting_verification', 'paid', 'rejected'] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
 export interface IQuoteRequest extends Document {
   orderNumber?: string;
   source?: 'checkout' | 'quote';
   orderTotal?: number;
-  paymentMethod?: 'cod' | 'card';
+  /** Payment method id from site settings; legacy orders use `cod` / `card` */
+  paymentMethod?: string;
+  /** Method name at the time of the order, so renaming a method keeps old orders readable */
+  paymentMethodName?: string;
+  /** Transaction ID the customer entered after paying */
+  paymentReference?: string;
+  paymentStatus?: PaymentStatus;
   companyName: string;
   contactPerson: string;
   email: string;
@@ -20,7 +33,11 @@ export interface IQuoteRequest extends Document {
   address?: string;
   items: IQuoteItem[];
   message?: string;
-  status: 'pending' | 'reviewed' | 'responded' | 'closed';
+  status: OrderStatus;
+  /** When a checkout order was closed (dispatched); revenue is counted by this date */
+  closedAt?: Date;
+  /** True while this order's quantities are subtracted from product stock */
+  stockDeducted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -64,7 +81,20 @@ const QuoteRequestSchema: Schema = new Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ['cod', 'card'],
+      trim: true,
+    },
+    paymentMethodName: {
+      type: String,
+      trim: true,
+    },
+    paymentReference: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+    },
+    paymentStatus: {
+      type: String,
+      enum: PAYMENT_STATUSES,
     },
     companyName: {
       type: String,
@@ -102,8 +132,15 @@ const QuoteRequestSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'reviewed', 'responded', 'closed'],
+      enum: ORDER_STATUSES,
       default: 'pending',
+    },
+    closedAt: {
+      type: Date,
+    },
+    stockDeducted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

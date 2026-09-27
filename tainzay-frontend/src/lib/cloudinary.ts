@@ -59,7 +59,7 @@ function cloudinaryProductSquareLoader(
     ['e_trim'],
     ['c_pad', 'ar_1:1', 'b_rgb:ffffff', 'g_center', `w_${productWidth}`],
     ['c_mpad', `w_${width}`, `h_${width}`, 'b_rgb:ffffff', 'g_center'],
-    ['f_auto', `q_${quality ?? 'auto:best'}`, `e_sharpen:${sharpen}`],
+    ['f_auto', `q_${quality ?? 'auto:good'}`, `e_sharpen:${sharpen}`],
   ]);
 }
 
@@ -86,7 +86,7 @@ export function cloudinaryPhotoSquareLoader(props: ImageLoaderProps): string {
     'g_auto',
     `w_${width}`,
     'f_auto',
-    `q_${quality ?? 'auto:best'}`,
+    `q_${quality ?? 'auto:good'}`,
   ]);
 }
 

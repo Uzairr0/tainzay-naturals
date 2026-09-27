@@ -8,6 +8,9 @@ import {
   type CheckoutDeliverySettings,
   type CheckoutFormValues,
 } from '@/lib/checkout';
+import { formatPrice } from '@/lib/format';
+import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon';
+import type { PaymentMethodOption } from '@/types';
 
 interface CheckoutFormProps {
   values: CheckoutFormValues;
@@ -17,6 +20,9 @@ interface CheckoutFormProps {
   error?: string;
   subtotal: number;
   deliverySettings?: CheckoutDeliverySettings;
+  paymentMethods: PaymentMethodOption[];
+  orderTotal: number;
+  whatsappOrderUrl: string;
 }
 
 function updateField<K extends keyof CheckoutFormValues>(
@@ -36,9 +42,14 @@ export default function CheckoutForm({
   error,
   subtotal,
   deliverySettings = DEFAULT_CHECKOUT_DELIVERY,
+  paymentMethods,
+  orderTotal,
+  whatsappOrderUrl,
 }: CheckoutFormProps) {
   const deliveryFee = getCheckoutDeliveryFee(subtotal, deliverySettings);
   const deliveryLabel = getCheckoutDeliveryLabel(subtotal, deliverySettings);
+  const hasPaymentMethods = paymentMethods.length > 0;
+  const selectedMethod = paymentMethods.find((method) => method.id === values.paymentMethod);
 
   return (
     <form className="checkout-form" onSubmit={onSubmit} noValidate>
@@ -162,29 +173,71 @@ export default function CheckoutForm({
           Payment
         </h2>
 
-        <div className="checkout-payment-options">
-          <label className={`checkout-payment-option${values.paymentMethod === 'cod' ? ' is-selected' : ''}`}>
-            <input
-              type="radio"
-              name="paymentMethod"
-              value="cod"
-              checked={values.paymentMethod === 'cod'}
-              onChange={() => updateField(values, onChange, 'paymentMethod', 'cod')}
-            />
-            <span className="checkout-payment-copy">
-              <span className="checkout-payment-label">Cash on Delivery</span>
-              <span className="checkout-payment-hint">Pay when your order arrives</span>
-            </span>
-          </label>
+        <p className="checkout-payment-required">
+          Payment is required before your order can be processed.
+        </p>
 
-          <label className="checkout-payment-option is-disabled">
-            <input type="radio" name="paymentMethod" value="card" disabled />
-            <span className="checkout-payment-copy">
-              <span className="checkout-payment-label">Card</span>
-              <span className="checkout-payment-hint">Coming soon</span>
-            </span>
-          </label>
-        </div>
+        {hasPaymentMethods ? (
+          <>
+            <div className="checkout-payment-options" role="radiogroup" aria-label="Payment method">
+              {paymentMethods.map((method) => {
+                const isSelected = values.paymentMethod === method.id;
+
+                return (
+                  <label
+                    key={method.id}
+                    className={`checkout-payment-option${isSelected ? ' is-selected' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={method.id}
+                      checked={isSelected}
+                      onChange={() => updateField(values, onChange, 'paymentMethod', method.id)}
+                    />
+                    <span className="checkout-payment-copy">
+                      <span className="checkout-payment-label">{method.name}</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+
+            {selectedMethod && (
+              <div className="checkout-payment-details" aria-live="polite">
+                <p className="checkout-payment-details-title">
+                  Send <strong>{formatPrice(orderTotal)}</strong> to:
+                </p>
+                <p className="checkout-payment-details-text">{selectedMethod.details}</p>
+              </div>
+            )}
+
+            <div className="checkout-field checkout-field-full checkout-payment-reference">
+              <label htmlFor="checkout-payment-reference">Transaction ID</label>
+              <input
+                id="checkout-payment-reference"
+                type="text"
+                required
+                maxLength={100}
+                autoComplete="off"
+                value={values.paymentReference}
+                onChange={(event) =>
+                  updateField(values, onChange, 'paymentReference', event.target.value)
+                }
+                placeholder="e.g. TID or reference number from your receipt"
+              />
+              <span className="checkout-field-hint">
+                After paying, enter the transaction ID from your bank or wallet receipt so we
+                can match your payment.
+              </span>
+            </div>
+          </>
+        ) : (
+          <p className="checkout-payment-hint">
+            Online payment isn&apos;t available right now. Please send your order to us on
+            WhatsApp below.
+          </p>
+        )}
       </section>
 
       {error && (
@@ -193,9 +246,27 @@ export default function CheckoutForm({
         </p>
       )}
 
-      <button type="submit" className="checkout-submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Placing order…' : 'Place Order'}
-      </button>
+      {hasPaymentMethods && (
+        <button type="submit" className="checkout-submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Placing order…' : 'Place Order'}
+        </button>
+      )}
+
+      <div className="checkout-whatsapp-alt">
+        <p className="checkout-whatsapp-alt-text">
+          Prefer to arrange payment with us directly? Send your order on WhatsApp and our team
+          will help you complete it.
+        </p>
+        <a
+          href={whatsappOrderUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="checkout-whatsapp-btn"
+        >
+          <WhatsAppIcon className="checkout-whatsapp-btn-icon" />
+          Order on WhatsApp
+        </a>
+      </div>
     </form>
   );
 }

@@ -76,8 +76,33 @@ async function sendViaTwilio(toDigits: string, body: string): Promise<void> {
   }
 }
 
+/**
+ * CallMeBot: free alerts to the store owner's own WhatsApp. The API key is tied
+ * to the phone that registered it, so it can only message that number, which
+ * is exactly what admin order alerts need.
+ */
+async function sendViaCallMeBot(toDigits: string, body: string): Promise<void> {
+  const apiKey = process.env.CALLMEBOT_API_KEY;
+  if (!apiKey) return;
+
+  const url = new URL('https://api.callmebot.com/whatsapp.php');
+  url.searchParams.set('phone', toE164Plus(toDigits));
+  url.searchParams.set('text', body);
+  url.searchParams.set('apikey', apiKey);
+
+  const response = await fetch(url);
+  const detail = await response.text();
+
+  // CallMeBot answers 200 even on failure and puts the error in the page text.
+  if (!response.ok || /error|invalid/i.test(detail)) {
+    const text = detail.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    throw new Error(`CallMeBot WhatsApp failed (${response.status}): ${text.slice(0, 300)}`);
+  }
+}
+
 export function isWhatsAppConfigured(): boolean {
   if (process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID) return true;
+  if (process.env.CALLMEBOT_API_KEY) return true;
   return Boolean(
     process.env.TWILIO_ACCOUNT_SID &&
       process.env.TWILIO_AUTH_TOKEN &&
@@ -90,6 +115,7 @@ export function getWhatsAppProviderLabel(): string {
     return `Meta Cloud API (phone ID ${process.env.WHATSAPP_PHONE_NUMBER_ID})`;
   }
   if (process.env.TWILIO_ACCOUNT_SID) return 'Twilio WhatsApp';
+  if (process.env.CALLMEBOT_API_KEY) return 'CallMeBot (alerts to store number)';
   return 'not configured (preview only)';
 }
 
@@ -103,6 +129,11 @@ export async function sendOrderWhatsApp(to: string, body: string): Promise<'sent
 
   if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_WHATSAPP_FROM) {
     await sendViaTwilio(toDigits, body);
+    return 'sent';
+  }
+
+  if (process.env.CALLMEBOT_API_KEY) {
+    await sendViaCallMeBot(toDigits, body);
     return 'sent';
   }
 
